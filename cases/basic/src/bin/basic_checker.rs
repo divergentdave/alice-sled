@@ -13,7 +13,10 @@ fn main() -> anyhow::Result<()> {
     let crashed_state_directory = args.next().unwrap();
     let stdout_file = args.next().unwrap();
     let stdout = std::fs::read_to_string(stdout_file).unwrap();
-    let db = sled::open(crashed_state_directory)?;
+    let db = sled::Config::new()
+        .segment_size(256)
+        .path(crashed_state_directory)
+        .open()?;
     if stdout.contains("Flushed") {
         for i in 0..10 {
             let key = shift_bytes_by(i);
